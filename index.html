@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Calculadora de Dano - Cabal Online</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #1e1e2f;
+      color: #fff;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1, h2 {
+      text-align: center;
+      color: #00ffff;
+    }
+    label {
+      display: block;
+      margin-top: 10px;
+    }
+    input, select {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      border-radius: 4px;
+      border: none;
+    }
+    button {
+      margin-top: 15px;
+      padding: 10px;
+      width: 100%;
+      background-color: #00ffff;
+      color: #000;
+      border: none;
+      border-radius: 4px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .result {
+      margin-top: 20px;
+      font-size: 1.2em;
+      background: #2e2e3f;
+      padding: 10px;
+      border-radius: 4px;
+    }
+    table {
+      width: 100%;
+      margin-top: 30px;
+      border-collapse: collapse;
+      background: #2e2e3f;
+    }
+    th, td {
+      border: 1px solid #444;
+      padding: 8px;
+      text-align: center;
+    }
+    th {
+      background-color: #00ffff;
+      color: #000;
+    }
+  </style>
+</head>
+<body>
+  <h1>Calculadora de Dano - Cabal Online</h1>
+
+  <label for="atk">Ataque:</label>
+  <input type="number" id="atk" placeholder="Ex: 50">
+
+  <label for="perf">Perfuração:</label>
+  <input type="number" id="perf" placeholder="Ex: 15">
+
+  <label for="amp">Amplificação:</label>
+  <input type="number" id="amp" placeholder="Ex: 4">
+
+  <label for="dc">Dano Crítico:</label>
+  <input type="number" id="dc" placeholder="Ex: 16">
+
+  <button onclick="calcular('baldus')">Calcular Dano no Baldus</button>
+  <button onclick="calcular('over')">Calcular Dano com Over</button>
+  <button onclick="calcular('semOver')">Calcular Dano sem Over</button>
+
+  <div class="result" id="resultado">Resultado aparecerá aqui.</div>
+
+  <h2>Tabela de Equivalência Estática</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Conversão</th>
+        <th>Equivalência</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>Atk por 1 Amp</td><td>14.2</td></tr>
+      <tr><td>Atk por 1 DC</td><td>7.4</td></tr>
+      <tr><td>Atk por 1 Perf</td><td>2.2</td></tr>
+      <tr><td>DC por 1 Amp</td><td>1.9</td></tr>
+      <tr><td>Perf por 1 DC</td><td>3.2</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Conversor de Equivalência de Status</h2>
+
+  <label for="baseStat">Escolha o atributo base:</label>
+  <select id="baseStat">
+    <option value="atk">Ataque</option>
+    <option value="amp">Amplificação</option>
+    <option value="dc">Dano Crítico</option>
+    <option value="perf">Perfuração</option>
+  </select>
+
+  <label for="baseValue">Valor:</label>
+  <input type="number" id="baseValue" placeholder="Ex: 50">
+
+  <button onclick="converterEquivalencia()">Converter</button>
+
+  <div class="result" id="equivalenciaResultado">Equivalência aparecerá aqui.</div>
+
+  <script>
+    function calcular(modo) {
+      const atk = parseFloat(document.getElementById('atk').value) || 0;
+      const perf = parseFloat(document.getElementById('perf').value) || 0;
+      const amp = parseFloat(document.getElementById('amp').value) || 0;
+      const dc = parseFloat(document.getElementById('dc').value) || 0;
+
+      let dano = 0;
+
+      if (modo === 'baldus') {
+        dano = (atk * 36.42) + (perf * 83.53) + (amp * 605.5) + (dc * 279.4);
+      } else if (modo === 'over') {
+        dano = (atk * 29.4) + (perf * 67.9) + (amp * 426) + (dc * 222.8);
+      } else if (modo === 'semOver') {
+        dano = (atk * 20.9) + (perf * 46.8) + (amp * 296.75) + (dc * 158.3);
+      }
+
+      document.getElementById('resultado').innerText = `Dano estimado: ${Math.round(dano)}`;
+    }
+
+    function converterEquivalencia() {
+      const base = document.getElementById('baseStat').value;
+      const value = parseFloat(document.getElementById('baseValue').value) || 0;
+
+      // Multiplicadores no modo com Over
+      const mult = {
+        atk: 29.4,
+        amp: 426,
+        dc: 222.8,
+        perf: 67.9
+      };
+
+      const danoBase = value * mult[base];
+
+      const resultado = [];
+
+      for (const [stat, m] of Object.entries(mult)) {
+        if (stat !== base) {
+          const equivalente = danoBase / m;
+          resultado.push(`${equivalente.toFixed(2)} ${nomeStat(stat)} = ${value} ${nomeStat(base)}`);
+        }
+      }
+
+      document.getElementById('equivalenciaResultado').innerHTML = resultado.join('<br>');
+    }
+
+    function nomeStat(stat) {
+      switch (stat) {
+        case 'atk': return 'Ataque';
+        case 'amp': return 'Amplificação';
+        case 'dc': return 'Dano Crítico';
+        case 'perf': return 'Perfuração';
+      }
+    }
+  </script>
+</body>
+</html>
